@@ -25,8 +25,9 @@ echo "create certificates"
 bash generate_cert.sh
 
 echo "=== Install falco helm chart as name threatmonit ==="
-helm install threatmonit falcosecurity/falco \
-    --set falco.grpc.enabled=true,falco.grpcOutput.enabled=true --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true --namespace secops \
+helm install threatmonit falcosecurity/falco --namespace secops \
+    --set falco.grpc.enabled=true,falco.grpcOutput.enabled=true --set falco.jsonOutput=true --set falco.webserver.nodePort=true \
+    --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true \
     --set-file certs.server.key=server.key,certs.server.crt=server.crt,certs.ca.crt=ca.crt
 
 # Tip:
