@@ -18,6 +18,9 @@ docker pull falcosecurity/falco-driver-loader:latest
 docker run --rm -i -t --privileged -v /root/.falco:/root/.falco -v /proc:/host/proc:ro -v /boot:/host/boot:ro -v /lib/modules:/host/lib/modules:ro -v /usr:/host/usr:ro -v /etc:/host/etc:ro falcosecurity/falco-driver-loader:latest
 ls ~/.falco
 
+# https://github.com/falcosecurity/falcosidekick-ui
+# https://github.com/falcosecurity/falcosidekick
+
 echo "=== Install falco helm chart as name threatmonit ==="
 helm install threatmonit --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true --namespace secops falcosecurity/falco
 
