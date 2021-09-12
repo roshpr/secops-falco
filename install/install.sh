@@ -21,8 +21,13 @@ ls ~/.falco
 # https://github.com/falcosecurity/falcosidekick-ui
 # https://github.com/falcosecurity/falcosidekick
 
+echo "create certificates"
+bash generate_certs.sh
+
 echo "=== Install falco helm chart as name threatmonit ==="
-helm install threatmonit --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true --namespace secops falcosecurity/falco
+helm install threatmonit falcosecurity/falco \
+    --set falco.grpc.enabled=true,falco.grpcOutput.enabled=true --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true --namespace secops \
+    --set-file certs.server.key=server.key,certs.server.crt=server.crt,certs.ca.crt=ca.crt
 
 # Tip:
 # You can easily forward Falco events to Slack, Kafka, AWS Lambda and more with falcosidekick.
