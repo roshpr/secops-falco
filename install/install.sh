@@ -22,7 +22,7 @@ ls ~/.falco
 # https://github.com/falcosecurity/falcosidekick
 
 echo "create certificates"
-bash generate_certs.sh
+bash generate_cert.sh
 
 echo "=== Install falco helm chart as name threatmonit ==="
 helm install threatmonit falcosecurity/falco \
