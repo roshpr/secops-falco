@@ -17,6 +17,7 @@ echo "=== Install Falco driver loader for Ebpf ==="
 docker pull falcosecurity/falco-driver-loader:latest
 docker run --rm -i -t --privileged -v /root/.falco:/root/.falco -v /proc:/host/proc:ro -v /boot:/host/boot:ro -v /lib/modules:/host/lib/modules:ro -v /usr:/host/usr:ro -v /etc:/host/etc:ro falcosecurity/falco-driver-loader:latest
 ls ~/.falco
+
 echo "=== Install falco helm chart ==="
 helm install falco --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --namespace secops falcosecurity/falco
 
@@ -25,3 +26,6 @@ helm install falco --set falco.jsonOutput=true --set falco.webserver.nodePort=tr
 # Full list of outputs: https://github.com/falcosecurity/charts/falcosidekick.
 # You can enable its deployment with `--set falcosidekick.enabled=true` or in your values.yaml.
 # See: https://github.com/falcosecurity/charts/blob/master/falcosidekick/values.yaml for configuration values."
+
+echo "=== Enable audit events ==="
+# https://github.com/falcosecurity/evolution/tree/master/examples/k8s_audit_config
