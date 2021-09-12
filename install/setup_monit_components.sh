@@ -1,6 +1,6 @@
 #!/bin/bash
 helm install falco-exporter --namespace=secops \ 
-    --set-file certs.ca.crt=ca.crt,certs.client.key=client.key,certs.client.crt=client.crt \
+    --set-file certs.ca.crt=ca.crt,certs.client.key=client.key,certs.client.crt=client.crt --set serviceMonitor.enabled=true \
     falcosecurity/falco-exporter 
 #  export POD_NAME=$(kubectl get pods --namespace secops -l "app.kubernetes.io/name=falco-exporter,app.kubernetes.io/instance=threat-exporter" -o jsonpath="{.items[0].metadata.name}")
 #  echo "Visit http://127.0.0.1:9376/metrics to use your application"
