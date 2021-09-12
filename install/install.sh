@@ -19,7 +19,7 @@ docker run --rm -i -t --privileged -v /root/.falco:/root/.falco -v /proc:/host/p
 ls ~/.falco
 
 echo "=== Install falco helm chart ==="
-helm install falco --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --namespace secops falcosecurity/falco
+helm install falco --set falco.jsonOutput=true --set falco.webserver.nodePort=true --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true --namespace secops falcosecurity/falco
 
 # Tip:
 # You can easily forward Falco events to Slack, Kafka, AWS Lambda and more with falcosidekick.
