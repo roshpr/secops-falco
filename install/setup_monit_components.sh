@@ -13,4 +13,6 @@ helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace=monit
 echo "grafana pass: admin/prom-operator"
 
-# Follow steps to configure falco exporter with prometheus: https://githubmemory.com/repo/falcosecurity/falco-exporter/issues
+# Follow steps to configure falco exporter with prometheus: 
+# Issues https://githubmemory.com/repo/falcosecurity/falco-exporter/issues
+# Issues https://github.com/falcosecurity/falco-exporter/issues/63
