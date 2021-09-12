@@ -5,8 +5,20 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scr
 chmod 700 get_helm.sh
 ./get_helm.sh
 
-echo "=== Setup Falco ==="
-helm install falco falcosecurity/falco
+echo "=== Create NS secops ==="
+kubectl create ns secops
+
+echo "=== Install Falco driver loader for Ebpf ==="
+# https://falco.org/docs/event-sources/drivers/#ebpf-probe
+# https://falco.org/docs/getting-started/download/
+# https://falco.org/docs/getting-started/running/#docker
+# https://falco.org/docs/getting-started/running/#docker-least-privileged
+
+docker pull falcosecurity/falco-driver-loader:latest
+docker run --rm -i -t --privileged -v /root/.falco:/root/.falco -v /proc:/host/proc:ro -v /boot:/host/boot:ro -v /lib/modules:/host/lib/modules:ro -v /usr:/host/usr:ro -v /etc:/host/etc:ro falcosecurity/falco-driver-loader:latest
+ls ~/.falco
+
+helm install falco --set falco.jsonOutput=true falco.webserver.nodePort=true ebpf.enabled=true --namespace secops falcosecurity/falco
 
 # Tip:
 # You can easily forward Falco events to Slack, Kafka, AWS Lambda and more with falcosidekick.
