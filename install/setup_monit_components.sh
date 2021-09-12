@@ -7,6 +7,7 @@ helm install falco-exporter --namespace=secops \
 #  kubectl port-forward --namespace secops $POD_NAME 9376    
 
 kubectl create ns monit
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#configuration
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace=monit
