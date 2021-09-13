@@ -16,3 +16,6 @@ echo "grafana pass: admin/prom-operator"
 # Follow steps to configure falco exporter with prometheus: 
 # Issues https://githubmemory.com/repo/falcosecurity/falco-exporter/issues
 # Issues https://github.com/falcosecurity/falco-exporter/issues/63
+
+# enable audit events in kubernetes kubeadm
+# https://evalle.github.io/blog/20200929-how-to-enable-kubernetes-auditing-with-kubeadm
