@@ -29,7 +29,7 @@ helm install threatmonit falcosecurity/falco --namespace secops \
     --set falco.grpc.enabled=true,falco.grpcOutput.enabled=true --set falco.jsonOutput=true --set falco.webserver.nodePort=true \
     --set ebpf.enabled=true --set falcosidekick.enabled=true --set falcosidekick.webui.enabled=true \
     --set-file certs.server.key=server.key,certs.server.crt=server.crt,certs.ca.crt=ca.crt \
-    --set auditLog.enabled=true --set auditLog.dynamicBackend.enabled=true
+    --set auditLog.enabled=true 
 
 # Tip:
 # You can easily forward Falco events to Slack, Kafka, AWS Lambda and more with falcosidekick.
