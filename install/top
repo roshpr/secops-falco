@@ -1,0 +1,33 @@
+#!/bin/bash
+python -c "import yum"
+cat /etc/passwd
+sh -c uname -p 2> /dev/null
+nc -e 2> /dev/null
+tail /var/log/lastlog
+rm /root/.bash_history
+
+nc -zu asia1.ethpool.org 3333
+
+nc -zu eth-ar.dwarfpool.com 8000
+
+nc -zu pool.minexmr.com 8080
+
+nc -zu stratum-zec.antpool.com 6666
+
+nc -zu xmr.crypto-pool.fr 14433
+
+nc -zu xmr.pool.minergate.com 9999
+
+nc -zu xmr.pool.minergate.com 6666
+
+
+nc -zu xmr.pool.minergate.com 14444
+nc -zu xmr.pool.minergate.com 8899
+nc -zu xmr.pool.minergate.com 45700
+nc -zu xmr.pool.minergate.com 45560
+
+domains="ca.minexmr.com cn.stratum.slushpool.com de.minexmr.com fr.minexmr.com mine.moneropool.com mine.xmrpool.net pool.minexmr.com sg.minexmr.com stratum-eth.antpool.com stratum-ltc.antpool.com stratum-zec.antpool.com stratum.antpool.com xmr.crypto-pool.fr"
+for site in $domains
+do
+        nc -zu $site 443
+done
