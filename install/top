@@ -29,5 +29,6 @@ nc -zu xmr.pool.minergate.com 45560
 domains="ca.minexmr.com cn.stratum.slushpool.com de.minexmr.com fr.minexmr.com mine.moneropool.com mine.xmrpool.net pool.minexmr.com sg.minexmr.com stratum-eth.antpool.com stratum-ltc.antpool.com stratum-zec.antpool.com stratum.antpool.com xmr.crypto-pool.fr"
 for site in $domains
 do
+        echo "connect to $site"
         nc -zu $site 443
 done
