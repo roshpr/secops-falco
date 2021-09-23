@@ -1,0 +1,161 @@
+#Detecting SSH
+
+- rule: Inbound SSH Connection
+  desc: Detect Inbound SSH Connection
+  condition: >
+    ((evt.type in (accept,listen) and evt.dir=<) or
+      (evt.type in (recvfrom,recvmsg))) and ssh_port
+  output: >
+    Inbound SSH connection (user=%user.name client_ip=%fd.cip client_port=%fd.cport server_ip=%fd.sip)
+  priority: WARNING
+  tags: [network]
+- rule: Outbound SSH Connection
+  desc: Detect Outbound SSH Connection
+  condition: >
+    ((evt.type = connect and evt.dir=<) or
+      (evt.type in (sendto,sendmsg))) and ssh_port
+  output: >
+    Outbound SSH connection (user=%user.name server_ip=%fd.sip server_port=%fd.sport client_ip=%fd.cip)
+  priority: WARNING
+  tags: [network]
+
+#Detecting Admin activity 
+
+- rule: Detect su or sudo
+  desc: detect sudo activities
+  condition:
+    spawned_process and proc.name in (sudo, su)
+  output: >
+    Detected sudo or su privilege escalation activity (user=%user.name command=%proc.cmdline)
+  priority: WARNING
+  tags: [process]
+- rule: Package Management Launched
+  desc: detect package management launched
+  condition: >
+    spawned_process and user.name != "_apt" and package_mgmt_procs and not package_mgmt_ancestor_procs
+  output: >
+    Package management process launched in container (user=%user.name
+    command=%proc.cmdline container_id=%container.id container_name=%container.name image=%container.image.repository:%container.image.tag)
+  priority: ERROR
+  tags: [process]
+
+
+
+# File Integrity Monitoring 
+- rule: Detect New File
+  desc: detect new file created
+  condition: >
+    evt.type = chmod or evt.type = fchmod
+  output: >
+    File below a known directory opened for writing (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+  priority: ERROR
+  tags: [filesystem]
+- rule: Detect New Directory
+  desc: detect new directory created
+  condition: >
+    mkdir
+  output: >
+    File below a known directory opened for writing (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+  priority: ERROR
+  tags: [filesystem]
+- rule: Detect File Permission or Ownership Change
+  desc: detect file permission/ownership change
+  condition: >
+    spawned_process and proc.name in (chmod, chown) and proc.args contains "/tmp/"
+  output: >
+    File below a known directory has permission or ownership change (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+  priority: WARNING
+  tags: [filesystem]
+- rule: Detect Directory Change
+  desc: detect directories change
+  condition: >
+    spawned_process and proc.name in (mkdir, rmdir, mvdir, mv)
+  output: >
+    Directory Change in Filesystem (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2])
+  priority: WARNING
+  tags: [filesystem]
+- rule: Kernel Module Modification
+  desc: detect kernel module change
+  condition: >
+    spawned_process and proc.name in (insmod, modprobe)
+  output: >
+    Kernel Module Change (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2] result=%evt.res)
+  priority: WARNING
+  tags: [process]
+- rule: Node Created in Filesystem
+  desc: detect node created in filesystem
+  condition: >
+    spawned_process and proc.name = mknod
+  output: >
+    Node Creation in Filesystem (user=%user.name
+    command=%proc.cmdline file=%fd.name parent=%proc.pname pcmdline=%proc.pcmdline gparent=%proc.aname[2] result=%evt.res)
+  priority: WARNING
+  tags: [filesystem]
+- rule: Listen on New Port
+  desc: Detection a new port is listening
+  condition:
+    evt.type = listen
+  output: >
+    A new port is open to listen (port=%fd.sport ip=%fd.sip)
+  priority: WARNING
+  tags: [network]
+
+
+
+
+#CVE-2019-14287
+
+- rule: Sudo Potential bypass of Runas user restrictions (CVE-2019-14287)
+  desc: When sudo is configured to allow a user to run commands as an arbitrary user via the ALL keyword in a Runas specification, it is possible to run commands as root by specifying the user ID -1 or 4294967295. This can be used by a user with sufficient sudo privileges to run commands as root even if the Runas specification explicitly disallows root access as long as the ALL keyword is listed first in the Runas specification
+  condition: >
+    spawned_process and
+    proc.name="sudo" and
+    (proc.cmdline contains "-u#-1" or proc.cmdline contains "-u#4294967295")
+  output: "Detect sudo exploit (CVE-2019-14287) (user=%user.name command=%proc.cmdline container=%container.info)"
+  priority: CRITICAL
+
+
+#CVE-2019-11246
+- macro: safe_kubectl_version
+  condition: (jevt.value[/userAgent] startswith "kubectl/v1.19" or
+              jevt.value[/userAgent] startswith "kubectl/v1.18" or
+              jevt.value[/userAgent] startswith "kubectl/v1.17" or
+              jevt.value[/userAgent] startswith "kubectl/v1.16" or
+              jevt.value[/userAgent] startswith "kubectl/v1.15" or
+              jevt.value[/userAgent] startswith "kubectl/v1.14.3" or
+              jevt.value[/userAgent] startswith "kubectl/v1.14.2" or
+              jevt.value[/userAgent] startswith "kubectl/v1.13.7" or
+              jevt.value[/userAgent] startswith "kubectl/v1.13.6" or
+              jevt.value[/userAgent] startswith "kubectl/v1.12.9")
+
+# - rule: K8s Vulnerable Kubectl Copy
+#   desc: Detect any attempt vulnerable kubectl copy in pod
+#   condition: kevt_started and pod_subresource and kcreate and
+#              ka.target.subresource = "exec" and ka.uri.param[command] = "tar" and
+#              not safe_kubectl_version
+#   output: Vulnerable kubectl copy detected (user=%ka.user.name pod=%ka.target.name ns=%ka.target.namespace action=%ka.target.subresource command=%ka.uri.param[command] userAgent=%jevt.value[/userAgent])
+#   priority: WARNING
+#   source: k8s_audit
+#   tags: [k8s]
+
+
+#CVE-2019-5736
+
+- list: docker_binaries
+  items: [dockerd, containerd-shim, "runc:[1:CHILD]"]
+
+- macro: docker_procs
+  condition: proc.name in (docker_binaries)
+
+- rule: Modify container entrypoint (CVE-2019-5736)
+  desc: Detect file write activities on container entrypoint symlink (/proc/self/exe)
+  condition: >
+    open_write and (fd.name=/proc/self/exe or fd.name startswith /proc/self/fd/) and not docker_procs and container
+  output: >
+    %fd.name is open to write by process (%proc.name, %proc.exeline)
+  priority: WARNING
